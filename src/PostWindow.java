@@ -5,7 +5,7 @@ import javax.imageio.ImageIO;
 
 public class PostWindow extends BoardField {
 	
-	public static int activeNumber = 0;
+	public static int activeNumber = 6;
 	boolean type = false;//true: L+P, false:L+T
 	boolean active = true;
 	int queue=0,postIndex;
@@ -15,6 +15,9 @@ public class PostWindow extends BoardField {
 		this.postIndex=postIndex;
 		if(postIndex%2==0)type=true;
 		passingTime=2000;
+		
+		if(postIndex<PostWindow.activeNumber)active=true;
+		else active=false;
 		readImage();
 	}
 	
@@ -36,5 +39,9 @@ public class PostWindow extends BoardField {
 			System.err.println(e);
 		}
 		
+	}
+	
+	void incQueue(){
+		queue++;
 	}
 }

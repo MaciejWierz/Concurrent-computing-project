@@ -3,14 +3,19 @@ import javax.swing.JLabel;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 
 public class MenuPanel extends JPanel implements ActionListener {
 
-	JLabel addClientLabel,letterLabel,packLabel,transferLabel;
-	JButton letterButton,packButton,transferButton;
+	JLabel addClientLabel,letterLabel,packLabel,transferLabel,activeWindowsLabel,
+	activeWindowsNumberLabel,addWindowLabel,subWindowLabel;
+	JButton letterButton,packButton,transferButton,addWindowButton,subWindowButton;
 	BoardPanel board;
+
+
+	
 	
 	public MenuPanel(BoardPanel board) {
 		this.setBounds(0, 21*30+17, 300, 22*30+10);
@@ -52,30 +57,54 @@ public class MenuPanel extends JPanel implements ActionListener {
 		transferButton.setBounds(123, 127, 54, 35);
 		add(transferButton);
 		transferButton.addActionListener(this);
-
+		
+		activeWindowsLabel = new JLabel("Aktywne okienka: ");
+		activeWindowsLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		activeWindowsLabel.setBounds(10, 188, 173, 49);
+		add(activeWindowsLabel);
+		
+		activeWindowsNumberLabel = new JLabel(""+PostWindow.activeNumber);
+		activeWindowsNumberLabel.setFont(new Font("Tahoma", Font.PLAIN, 24));
+		activeWindowsNumberLabel.setBounds(193, 189, 54, 43);
+		add(activeWindowsNumberLabel);
+		
+		addWindowLabel = new JLabel("Dodaj okienko:");
+		addWindowLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		addWindowLabel.setBounds(20, 248, 126, 30);
+		add(addWindowLabel);
+		
+		subWindowLabel = new JLabel("Zabierz okienko:");
+		subWindowLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		subWindowLabel.setBounds(10, 289, 136, 30);
+		add(subWindowLabel);
+		
+		addWindowButton = new JButton("+");
+		addWindowButton.setBounds(148, 248, 54, 30);
+		add(addWindowButton);
+		addWindowButton.addActionListener(this);
+		
+		subWindowButton = new JButton("-");
+		subWindowButton.setBounds(148, 289, 54, 30);
+		add(subWindowButton);
+		subWindowButton.addActionListener(this);
 	}
 
-	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		Object source = arg0.getSource();
 		
 		if(letterButton.equals(source)) {
-			PostWindow smallestQueue =board.windowsList.get(0);
-			acquireBoardSem();
-			
-			for(int i=1;i<board.windowsList.size();i++ )
-				if(board.windowsList.get(i).queue<smallestQueue.queue)
-					smallestQueue=board.windowsList.get(i);
-			smallestQueue.queue++;
-			board.boardSem.release();
-			
-			Runnable list = new PostThreadLetter(board.fieldsList.get(440),board.fieldsList, board,smallestQueue.postIndex);
-			Thread thread = new Thread(list);
-			thread.start();
+			createLetterThread();
+		}
+		else if(addWindowButton.equals(source)) {
+			handleWindowButtons(true);
+		}
+		else if(subWindowButton.equals(source)) {
+			handleWindowButtons(false);
 		}
 
-
 	}
+
+
 			private void acquireBoardSem() {
 			try {
 				board.boardSem.acquire();
@@ -83,4 +112,54 @@ public class MenuPanel extends JPanel implements ActionListener {
 				e.printStackTrace();
 			}
 		}
+			
+			
+			private void createLetterThread(){
+				
+				acquireBoardSem();
+				if(occupiedWindows())
+				{				
+				Runnable list = new PostThreadLetter(board.fieldsList.get(440),board.fieldsList, board);
+				Thread thread = new Thread(list);
+				board.boardSem.release();
+				thread.start();
+				}else board.boardSem.release();
+				
+				
+			}
+			
+			private boolean occupiedWindows() {
+				
+				if(board.fieldsList.get(43).occupied==0&&
+						board.fieldsList.get(45).occupied==0&&
+						board.fieldsList.get(47).occupied==0&&
+						board.fieldsList.get(49).occupied==0&&
+						board.fieldsList.get(51).occupied==0&&
+						board.fieldsList.get(53).occupied==0&&
+						board.fieldsList.get(55).occupied==0&&
+						board.fieldsList.get(57).occupied==0&&
+						board.fieldsList.get(59).occupied==0&&
+						board.fieldsList.get(61).occupied==0&&
+						board.fieldsList.get(440).occupied==0&&
+						board.fieldsList.get(439).occupied==0)
+				return true;
+				else
+				return false;
+			}
+
+			private void handleWindowButtons(boolean add_window) {
+				if(occupiedWindows()) {
+					if(add_window==true&&PostWindow.activeNumber<11)PostWindow.activeNumber++;
+					if(add_window==false&&PostWindow.activeNumber>1)PostWindow.activeNumber--;
+					activeWindowsNumberLabel.setText(""+PostWindow.activeNumber);
+			
+					for(PostWindow i: board.windowsList )
+					{
+						if(i.postIndex<PostWindow.activeNumber)i.active=true;
+						else i.active=false;
+						i.readImage();
+					}
+				}
+			}
+			
 }

@@ -3,6 +3,7 @@ import java.util.concurrent.Semaphore;
 
 public class PostThreadLetter implements Runnable {
 	
+	private static boolean firstPassed = false;
 	Semaphore boardSem;
 	BoardField owningField;
 	ArrayList<BoardField> fieldsList;
@@ -12,9 +13,10 @@ public class PostThreadLetter implements Runnable {
 	private static final int up = -21;
 	private static final int down = 21;
 	public int headTo;
+	private static PostWindow smallestQueue;
 	
-	PostThreadLetter(BoardField owningField, ArrayList<BoardField> fieldList, BoardPanel board, int headTo ){
-		this.owningField = owningField; this.headTo=headTo;
+	PostThreadLetter(BoardField owningField, ArrayList<BoardField> fieldList, BoardPanel board ){
+		this.owningField = owningField; 
 		this.fieldsList = fieldList;
 		this.board = board;	this.boardSem=board.boardSem;
 		try {
@@ -24,7 +26,7 @@ public class PostThreadLetter implements Runnable {
 		}
 		owningField.occupied=1;
 		owningField.readImage();
-		
+		setHeadTo();
 	}
 	
 	void move(int direction) throws InterruptedException
@@ -59,19 +61,28 @@ public class PostThreadLetter implements Runnable {
 		try {
 			path();
 			repaintBoard();
+			for(PostWindow i: board.windowsList) 
+			System.out.print("|"+i.queue);	System.out.println("");
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
-
+	
 	}
 	
-	void path() throws InterruptedException{
+	private void path() throws InterruptedException{
 		int goLeft=19-(2*headTo);
+		for(int i=0;i<goLeft;i++) {move(left); if(owningField.index==421) i=goLeft;}
+		for(int i=0;i<20;i++) if(i!=17)move(up); else 
+				{move(up);
+				try{
+					((PostWindow)owningField).queue--;
+					
+				}catch(Exception e) {
+					break;
+				}
+				}
 		
-		for(int i=0;i<goLeft;i++) move(left);
-		for(int i=0;i<20;i++) move(up);
-		
-		
+		firstPassed=true;
 		owningField.occupied=0;
 		owningField.readImage(); // zakoñczenie drogi
 		repaintBoard();
@@ -89,5 +100,34 @@ public class PostThreadLetter implements Runnable {
 		}
 	}
 
+	private void setHeadTo() {
+		smallestQueue = board.windowsList.get(0);
+		resetPostID();
+		
+			for(PostWindow i: board.windowsList) {
+			System.out.print(" "+smallestQueue.queue+"|"+i.queue);		
+			if(i.postIndex<PostWindow.activeNumber)	
+			if(smallestQueue.queue>i.queue) smallestQueue = i;
+			}
+			
+			System.out.print("sQ.ID: "+smallestQueue.postIndex);
+			headTo=smallestQueue.postIndex;
+			if(headTo>=0)board.windowsList.get(headTo).queue++;
+			else board.windowsList.get(0).queue++;
+			System.out.println(""+" size"+board.windowsList.size());
+			
+	}
+	
+	private void resetPostID() {
+		boolean doIt=false;
+		int j=0;
+		for(PostWindow i: board.windowsList)
+			if(i.postIndex<0)doIt=true;
+		
+		for(PostWindow i: board.windowsList) {
+			i.postIndex=j;
+			j++;
+		}
+	}
 	
 }
