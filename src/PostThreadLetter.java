@@ -13,11 +13,13 @@ public class PostThreadLetter implements Runnable {
 	private static final int up = -21;
 	private static final int down = 21;
 	public int headTo;
-	private static PostWindow smallestQueue;
+
 	
-	PostThreadLetter(BoardField owningField, ArrayList<BoardField> fieldList, BoardPanel board ){
+
+	
+	public PostThreadLetter(BoardField owningField, ArrayList<BoardField> fieldsList, BoardPanel board) {
 		this.owningField = owningField; 
-		this.fieldsList = fieldList;
+		this.fieldsList = fieldsList;
 		this.board = board;	this.boardSem=board.boardSem;
 		try {
 			owningField.FieldSem.acquire();
@@ -26,9 +28,9 @@ public class PostThreadLetter implements Runnable {
 		}
 		owningField.occupied=1;
 		owningField.readImage();
-		setHeadTo();
+		
 	}
-	
+
 	void move(int direction) throws InterruptedException
 	{
 		
@@ -59,17 +61,17 @@ public class PostThreadLetter implements Runnable {
 	public void run() {
 		
 		try {
+			setHeadTo();
 			path();
 			repaintBoard();
-			for(PostWindow i: board.windowsList) 
-			System.out.print("|"+i.queue);	System.out.println("");
+
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
 	
 	}
 	
-	private void path() throws InterruptedException{
+	protected void path() throws InterruptedException{
 		int goLeft=19-(2*headTo);
 		for(int i=0;i<goLeft;i++) {move(left); if(owningField.index==421) i=goLeft;}
 		for(int i=0;i<20;i++) if(i!=17)move(up); else 
@@ -90,7 +92,7 @@ public class PostThreadLetter implements Runnable {
 	}
 	
 
-	private void repaintBoard() {
+	protected void repaintBoard() {
 		try {
 			boardSem.acquire();
 			board.repaint();
@@ -101,7 +103,7 @@ public class PostThreadLetter implements Runnable {
 	}
 
 	private void setHeadTo() {
-		smallestQueue = board.windowsList.get(0);
+		PostWindow smallestQueue = board.windowsList.get(0);
 		resetPostID();
 		
 			for(PostWindow i: board.windowsList) {
@@ -118,7 +120,7 @@ public class PostThreadLetter implements Runnable {
 			
 	}
 	
-	private void resetPostID() {
+	protected void resetPostID() {
 		boolean doIt=false;
 		int j=0;
 		for(PostWindow i: board.windowsList)
