@@ -26,8 +26,9 @@ public class BoardField {
 	void readImage(){
 		try {
 			if(occupied==0)img = ImageIO.read(new File("Images/0.bmp"));
-			else if(occupied==2)img = ImageIO.read(new File("Images/paczka.bmp"));
 			else if(occupied==1)img = ImageIO.read(new File("Images/list.bmp"));
+			else if(occupied==2)img = ImageIO.read(new File("Images/paczka.bmp"));
+			else if(occupied==3)img = ImageIO.read(new File("Images/Transfer.bmp"));
 		}catch(IOException e) {
 			System.err.println(e);
 		}

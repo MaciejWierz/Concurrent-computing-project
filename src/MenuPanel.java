@@ -98,6 +98,9 @@ public class MenuPanel extends JPanel implements ActionListener {
 		else if(packButton.equals(source)) {
 			createPackageThread();
 		}
+		else if(transferButton.equals(source)) {
+			createTransferThread();
+		}
 		else if(addWindowButton.equals(source)) {
 			handleWindowButtons(true);
 		}
@@ -106,9 +109,6 @@ public class MenuPanel extends JPanel implements ActionListener {
 		}
 
 	}
-
-
-
 
 			private void acquireBoardSem() {
 			try {
@@ -142,8 +142,18 @@ public class MenuPanel extends JPanel implements ActionListener {
 				board.boardSem.release();
 				thread.start();
 				}else board.boardSem.release();
-	}
-			
+			}
+
+			private void createTransferThread() {
+				acquireBoardSem();
+				if(occupiedWindows())
+				{			
+				Runnable list = new PostThreadTransfer (board.fieldsList.get(440),board.fieldsList, board);
+				Thread thread = new Thread(list);
+				board.boardSem.release();
+				thread.start();
+				}else board.boardSem.release();
+		}
 			
 			private boolean occupiedWindows() {
 				
