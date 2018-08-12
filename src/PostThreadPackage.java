@@ -15,7 +15,14 @@ public class PostThreadPackage extends PostThreadLetter {
 	public void run() {
 		
 		try {
+			boardSem.acquire();
 			setHeadTo();
+			boardSem.release();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		try {
 			path();
 			repaintBoard();
 
@@ -30,16 +37,16 @@ public class PostThreadPackage extends PostThreadLetter {
 		resetPostID();
 		
 			for(PostWindow i: board.windowsList) {
-			System.out.print(" "+smallestQueue.queue+"|"+i.queue);		
+			//System.out.print(" "+smallestQueue.queue+"|"+i.queue);		
 			if(i.postIndex<PostWindow.activeNumber)	
 			if(smallestQueue.queue>i.queue&&i.postIndex%2==0) smallestQueue = i;
 			}
 			
-			System.out.print("sQ.ID: "+smallestQueue.postIndex);
+			//System.out.print("sQ.ID: "+smallestQueue.postIndex);
 			headTo=smallestQueue.postIndex;
 			if(headTo>=0)board.windowsList.get(headTo).queue++;
 			else board.windowsList.get(0).queue++;
-			System.out.println(""+" size"+board.windowsList.size());
+			//System.out.println(""+" size"+board.windowsList.size());
 			
 	}
 	void move(int direction) throws InterruptedException

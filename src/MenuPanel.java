@@ -63,10 +63,10 @@ public class MenuPanel extends JPanel implements ActionListener {
 		activeWindowsLabel.setBounds(10, 188, 173, 49);
 		add(activeWindowsLabel);
 		
-		activeWindowsNumberLabel = new JLabel(""+PostWindow.activeNumber);
-		activeWindowsNumberLabel.setFont(new Font("Tahoma", Font.PLAIN, 24));
-		activeWindowsNumberLabel.setBounds(193, 189, 54, 43);
-		add(activeWindowsNumberLabel);
+		//activeWindowsNumberLabel = new JLabel(""+PostWindow.activeNumber);
+		//activeWindowsNumberLabel.setFont(new Font("Tahoma", Font.PLAIN, 24));
+		//activeWindowsNumberLabel.setBounds(193, 189, 54, 43);
+		//add(activeWindowsNumberLabel);
 		
 		addWindowLabel = new JLabel("Dodaj okienko:");
 		addWindowLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
@@ -128,7 +128,8 @@ public class MenuPanel extends JPanel implements ActionListener {
 				Thread thread = new Thread(list);
 				board.boardSem.release();
 				thread.start();
-				}else board.boardSem.release();
+				}else
+					board.boardSem.release();
 				
 				
 			}
@@ -141,7 +142,8 @@ public class MenuPanel extends JPanel implements ActionListener {
 				Thread thread = new Thread(list);
 				board.boardSem.release();
 				thread.start();
-				}else board.boardSem.release();
+				}else 
+					board.boardSem.release();
 			}
 
 			private void createTransferThread() {
@@ -152,22 +154,13 @@ public class MenuPanel extends JPanel implements ActionListener {
 				Thread thread = new Thread(list);
 				board.boardSem.release();
 				thread.start();
-				}else board.boardSem.release();
+				}else
+				board.boardSem.release();
 		}
 			
 			private boolean occupiedWindows() {
 				
-				if(board.fieldsList.get(43).occupied==0&&
-						board.fieldsList.get(45).occupied==0&&
-						board.fieldsList.get(47).occupied==0&&
-						board.fieldsList.get(49).occupied==0&&
-						board.fieldsList.get(51).occupied==0&&
-						board.fieldsList.get(53).occupied==0&&
-						board.fieldsList.get(55).occupied==0&&
-						board.fieldsList.get(57).occupied==0&&
-						board.fieldsList.get(59).occupied==0&&
-						board.fieldsList.get(61).occupied==0&&
-						board.fieldsList.get(440).occupied==0&&
+				if(		board.fieldsList.get(440).occupied==0&&
 						board.fieldsList.get(439).occupied==0)
 				return true;
 				else
@@ -178,7 +171,7 @@ public class MenuPanel extends JPanel implements ActionListener {
 				if(occupiedWindows()) {
 					if(add_window==true&&PostWindow.activeNumber<11)PostWindow.activeNumber++;
 					if(add_window==false&&PostWindow.activeNumber>1)PostWindow.activeNumber--;
-					activeWindowsNumberLabel.setText(""+PostWindow.activeNumber);
+				//	activeWindowsNumberLabel.setText(""+PostWindow.activeNumber);
 			
 					for(PostWindow i: board.windowsList )
 					{

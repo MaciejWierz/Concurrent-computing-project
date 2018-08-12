@@ -28,7 +28,7 @@ public class PostThreadLetter implements Runnable {
 		}
 		owningField.occupied=1;
 		owningField.readImage();
-		
+		owningField.FieldSem.release();
 	}
 
 	void move(int direction) throws InterruptedException
@@ -59,9 +59,18 @@ public class PostThreadLetter implements Runnable {
 	}
 
 	public void run() {
+
+		try {
+			boardSem.acquire();
+			setHeadTo();
+			boardSem.release();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
 		
 		try {
-			setHeadTo();
+			
 			path();
 			repaintBoard();
 
@@ -107,16 +116,16 @@ public class PostThreadLetter implements Runnable {
 		resetPostID();
 		
 			for(PostWindow i: board.windowsList) {
-			System.out.print(" "+smallestQueue.queue+"|"+i.queue);		
+			//System.out.print(" "+smallestQueue.queue+"|"+i.queue);		
 			if(i.postIndex<PostWindow.activeNumber)	
 			if(smallestQueue.queue>i.queue) smallestQueue = i;
 			}
 			
-			System.out.print("sQ.ID: "+smallestQueue.postIndex);
+			//System.out.print("sQ.ID: "+smallestQueue.postIndex);
 			headTo=smallestQueue.postIndex;
 			if(headTo>=0)board.windowsList.get(headTo).queue++;
 			else board.windowsList.get(0).queue++;
-			System.out.println(""+" size"+board.windowsList.size());
+			//System.out.println(""+" size"+board.windowsList.size());
 			
 	}
 	
